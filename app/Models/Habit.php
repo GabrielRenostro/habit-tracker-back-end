@@ -10,6 +10,8 @@ class Habit extends Model
 {
     protected $table = 'habito';
 
+    public $timestamps = false;
+
     const CREATED_AT = 'data_criacao';
 
     const UPDATED_AT = null;
