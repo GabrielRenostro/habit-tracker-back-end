@@ -69,4 +69,24 @@ class StatisticTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonStructure(['data']);
     }
+
+    public function test_can_filter_by_period(): void
+    {
+        $response = $this->getJson('/api/statistics/completion?period=weekly');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure(['data' => ['periodo', 'concluidos', 'nao_concluidos']]);
+    }
+
+    public function test_can_get_calendar_data(): void
+    {
+        $response = $this->getJson('/api/statistics/calendar?year=2026&month=11');
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'ano',
+                'mes',
+                'dias',
+            ]);
+    }
 }
