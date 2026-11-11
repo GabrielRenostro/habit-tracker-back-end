@@ -1,5 +1,7 @@
 <?php
 
+use App\Exceptions\RegraDeNegocioException;
+use App\Http\Middleware\RegistrarUltimoAcesso;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,10 +15,17 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->api(append: [RegistrarUltimoAcesso::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+
+        // Regras de negócio violadas no service respondem com o status da exceção (422 por padrão),
+        // no formato dos erros de validação.
+        $exceptions->render(fn (RegraDeNegocioException $e) => response()->json([
+            'message' => $e->getMessage(),
+            'errors' => [$e->campo => [$e->getMessage()]],
+        ], $e->status));
     })->create();
